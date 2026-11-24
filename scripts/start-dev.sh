@@ -15,9 +15,9 @@ BACKEND_PID=$!
 echo "=== [2/2] 启动 Vue 3 前端 (http://127.0.0.1:5173) ==="
 cd "$ROOT_DIR/frontend"
 if [ ! -d "node_modules" ]; then
-  pnpm install
+  npm install
 fi
-pnpm dev &
+npm run dev &
 FRONTEND_PID=$!
 
 trap 'echo "正在停止前后端服务..."; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null || true' EXIT INT TERM
