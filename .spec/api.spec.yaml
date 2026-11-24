@@ -1,0 +1,57 @@
+openapi: "3.0.3"
+info:
+  title: "ICPC实验室管理系统 API 契约规范"
+  version: "0.5.0"
+  description: "基于 SDD 规范驱动开发定义的阶段性（50%）后端契约，覆盖协会管理、题库管理、个人能力评估与统计看板。"
+servers:
+  - url: "http://127.0.0.1:8000/api/v1"
+paths:
+  /dashboard/overview:
+    get:
+      summary: "获取系统总览统计、进度里程碑与近期公告"
+  /association/applications:
+    get: { summary: "查询入会申请列表" }
+    post: { summary: "提交入会申请 (FR-AM-001)" }
+  /association/applications/{id}/review:
+    post: { summary: "审核入会申请并流转为备选会员 (FR-AM-002, BR-001)" }
+  /association/members:
+    get: { summary: "多条件检索会员列表 (FR-AM-004)" }
+    post: { summary: "直接录入会员档案 (FR-AM-004)" }
+  /association/members/{id}:
+    get: { summary: "查看会员完整档案：基本信息+考核+任职+奖惩+能力评估 (FR-AM-010)" }
+    put: { summary: "更新会员基本信息与部门 (FR-AM-004)" }
+  /association/members/{id}/promote:
+    post: { summary: "备选会员通过入会考核转正为正式会员并确定方向 (FR-AM-003, BR-001/002)" }
+  /association/members/{id}/status:
+    post: { summary: "执行观察、清退确认或主动退会状态变更 (FR-AM-007, BR-003)" }
+  /association/assessments:
+    get: { summary: "查询周期会员考核记录 (FR-AM-005/006)" }
+    post: { summary: "录入周期会员考核并自动触发状态流转 (FR-AM-005/006/007, BR-002/003)" }
+  /association/rewards:
+    get: { summary: "查询奖惩与优秀会员评优记录 (FR-AM-008)" }
+    post: { summary: "登记奖惩或优秀会员公示记录 (FR-AM-008)" }
+  /association/positions:
+    get: { summary: "查询组织架构与任职履历 (FR-AM-009)" }
+    post: { summary: "新增部门任职记录 (FR-AM-009)" }
+  /question-bank/tags:
+    get: { summary: "查询知识点与实现能力标签 (FR-QB-001)" }
+    post: { summary: "新增知识点或实现能力标签 (FR-QB-001)" }
+  /question-bank/problems:
+    get: { summary: "多条件组合检索题目（关键词/难度/来源/多标签AND或OR）(FR-QB-003, BR-006)" }
+    post: { summary: "新增题目并关联多个知识点标签 (FR-QB-002/004, BR-006)" }
+  /question-bank/problems/{id}:
+    get: { summary: "获取题目详情、关联标签与题解列表 (FR-QB-002/005)" }
+    put: { summary: "更新题目信息与知识点关联 (FR-QB-002/004)" }
+    delete: { summary: "逻辑停用或删除题目 (FR-QB-002)" }
+  /question-bank/problems/{id}/solutions:
+    post: { summary: "为题目添加题解与参考代码 (FR-QB-005)" }
+  /question-bank/problem-lists:
+    get: { summary: "查询专题题单列表 (FR-QB-006)" }
+    post: { summary: "创建专题题单并编排题目顺序 (FR-QB-006)" }
+  /question-bank/stats:
+    get: { summary: "获取题库知识点覆盖、难度与来源分布统计 (FR-QB-007)" }
+  /ability/assessments:
+    get: { summary: "查询个人能力评估记录列表 (FR-AB-001/005)" }
+    post: { summary: "提交竞赛会员六维能力评估并自动识别薄弱项 (FR-AB-001..004, BR-005)" }
+  /ability/members/{member_id}/profile:
+    get: { summary: "获取竞赛会员能力画像、薄弱项清单、推荐补强题单及历次趋势对比 (FR-AB-003..005)" }

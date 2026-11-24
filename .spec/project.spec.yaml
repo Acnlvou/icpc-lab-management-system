@@ -1,0 +1,86 @@
+project:
+  name: "ICPC实验室管理系统"
+  code: "icpc-lab-ms"
+  team: "Kcat"
+  course: "UML与软件工程建模"
+  version: "0.5.0-milestone"
+  methodology:
+    process: "Scrum"
+    ai_paradigm: "SDD (Spec-Driven Development)"
+  tech_stack:
+    frontend:
+      framework: "Vue 3 (Composition API)"
+      build_tool: "Vite"
+      router: "Vue Router 4"
+      visualization: "Native SVG Charts & Radar"
+    backend:
+      framework: "FastAPI"
+      orm: "SQLAlchemy 2.0"
+      validation: "Pydantic v2"
+      database: "SQLite 3"
+      testing: "pytest + httpx"
+
+milestones:
+  - id: "Sprint-0"
+    name: "需求分析与SDD规范建基"
+    status: "completed"
+    progress_weight: 10
+    deliverables:
+      - "docs/01-需求分析文档.md"
+      - "docs/02-SDD规范驱动开发与AI协作流程.md"
+      - "docs/03-系统架构与详细设计文档.md"
+      - "docs/04-数据库设计规范.md"
+      - "docs/05-API接口规范.md"
+      - ".spec/*"
+  - id: "Sprint-1"
+    name: "协会管理模块闭环"
+    status: "completed"
+    progress_weight: 20
+    requirements:
+      - "FR-AM-001"
+      - "FR-AM-002"
+      - "FR-AM-003"
+      - "FR-AM-004"
+      - "FR-AM-005"
+      - "FR-AM-006"
+      - "FR-AM-007"
+      - "FR-AM-008"
+      - "FR-AM-009"
+      - "FR-AM-010"
+  - id: "Sprint-2"
+    name: "题库管理与个人能力评估模块"
+    status: "completed"
+    progress_weight: 20
+    requirements:
+      - "FR-QB-001"
+      - "FR-QB-002"
+      - "FR-QB-003"
+      - "FR-QB-004"
+      - "FR-QB-005"
+      - "FR-QB-006"
+      - "FR-QB-007"
+      - "FR-AB-001"
+      - "FR-AB-002"
+      - "FR-AB-003"
+      - "FR-AB-004"
+      - "FR-AB-005"
+      - "FR-SYS-001"
+      - "FR-SYS-002"
+      - "FR-SYS-003"
+  - id: "Sprint-3"
+    name: "日常训练与寒暑假集训管理"
+    status: "planned"
+    progress_weight: 25
+    requirements:
+      - "FR-TRN-001..006"
+      - "FR-WIN-001..003"
+      - "FR-SUM-001..003"
+  - id: "Sprint-4"
+    name: "组队管理与校赛/XCPC竞赛管理"
+    status: "planned"
+    progress_weight: 25
+    requirements:
+      - "FR-TEAM-001..005"
+      - "FR-CMP-001..008"
+      - "FR-NC-001..002"
+      - "FR-XCPC-001..004"
