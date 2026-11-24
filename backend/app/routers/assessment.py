@@ -1,5 +1,6 @@
 import json
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
@@ -15,7 +16,7 @@ from app.schemas import AbilityAssessmentCreate, AbilityAssessmentOut, WeakPoint
 
 router = APIRouter(prefix="/api/v1/ability", tags=["个人能力评估 (FR-AB)"])
 
-DIMENSIONS: List[Tuple[str, str, str]] = [
+DIMENSIONS: list[tuple[str, str, str]] = [
     ("lang_basic", "编程语言基础", "巩固 C++ STL 容器、指针引用与复杂度估算，减少基础语法失误"),
     ("basic_algo", "基础算法", "强化二分、贪心、前缀和、基础图论与经典 DP 模板题训练"),
     ("simulation_logic", "模拟与逻辑实现", "开展大模拟与状态机专项训练，养成先写状态流转再编码习惯"),
@@ -27,7 +28,7 @@ DIMENSIONS: List[Tuple[str, str, str]] = [
 WEAK_THRESHOLD = 70
 
 
-def analyze_weak_points(scores: Dict[str, int]) -> List[dict]:
+def analyze_weak_points(scores: dict[str, int]) -> list[dict]:
     weak_list = []
     for key, label, suggestion in DIMENSIONS:
         val = scores[key]
@@ -80,7 +81,7 @@ def _serialize_assessment(rec: AbilityAssessment) -> AbilityAssessmentOut:
     )
 
 
-@router.get("/assessments", response_model=List[AbilityAssessmentOut])
+@router.get("/assessments", response_model=list[AbilityAssessmentOut])
 def list_ability_assessments(member_id: Optional[int] = None, db: Session = Depends(get_db)):
     q = db.query(AbilityAssessment).join(Member)
     if member_id:

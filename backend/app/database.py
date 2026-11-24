@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import declarative_base, sessionmaker
 

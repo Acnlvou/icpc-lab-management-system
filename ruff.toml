@@ -1,0 +1,8 @@
+# Ruff 配置 —— 与本机 backend/.venv (Python 3.9 + FastAPI) 保持一致
+target-version = "py39"
+line-length = 120
+
+[lint]
+# B008: FastAPI 依赖注入标准写法 Depends(...)
+# FA100: Python 3.9 下 FastAPI 运行时解析类型注解，不宜强制添加 __future__ annotations
+ignore = ["B008", "FA100"]

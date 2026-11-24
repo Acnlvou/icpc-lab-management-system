@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
@@ -61,7 +62,7 @@ def _serialize_problem_brief(p: Problem) -> ProblemBriefOut:
 # ==================== 知识点与能力标签管理 (FR-QB-001, BR-006) ====================
 
 
-@router.get("/tags", response_model=List[TagOut])
+@router.get("/tags", response_model=list[TagOut])
 def list_tags(category: Optional[str] = None, db: Session = Depends(get_db)):
     q = db.query(Tag)
     if category:
@@ -93,7 +94,7 @@ def create_tag(payload: TagCreate, db: Session = Depends(get_db)):
 # ==================== 题目管理与多标签组合检索 (FR-QB-002/003/004, BR-006) ====================
 
 
-@router.get("/problems", response_model=List[ProblemBriefOut])
+@router.get("/problems", response_model=list[ProblemBriefOut])
 def list_problems(
     keyword: Optional[str] = None,
     difficulty: Optional[str] = None,
@@ -250,7 +251,7 @@ def add_solution(problem_id: int, payload: ProblemSolutionCreate, db: Session = 
 # ==================== 题单管理 (FR-QB-006) ====================
 
 
-@router.get("/problem-lists", response_model=List[ProblemListOut])
+@router.get("/problem-lists", response_model=list[ProblemListOut])
 def list_problem_lists(db: Session = Depends(get_db)):
     lists = (
         db.query(ProblemList)

@@ -1,4 +1,4 @@
-from typing import List
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -103,7 +103,7 @@ def get_dashboard_overview(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/announcements", response_model=List[AnnouncementOut])
+@router.get("/announcements", response_model=list[AnnouncementOut])
 def list_announcements(db: Session = Depends(get_db)):
     return db.query(Announcement).order_by(Announcement.created_at.desc()).all()
 

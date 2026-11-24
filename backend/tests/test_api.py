@@ -1,22 +1,23 @@
 import os
 import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 
 # 在导入 app 之前指向独立临时 SQLite 测试库，确保测试隔离且可重复运行
-_tmp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-_tmp_db.close()
-os.environ["ICPC_DATABASE_URL"] = f"sqlite:///{_tmp_db.name}"
+with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as _tmp_db:
+    _tmp_db_path = _tmp_db.name
+os.environ["ICPC_DATABASE_URL"] = f"sqlite:///{_tmp_db_path}"
 
-from app.main import app  # noqa: E402
+from app.main import app
 
 
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as c:
         yield c
-    if os.path.exists(_tmp_db.name):
-        os.remove(_tmp_db.name)
+    if os.path.exists(_tmp_db_path):
+        os.remove(_tmp_db_path)
 
 
 def test_health_and_dashboard_overview(client):

@@ -1,6 +1,7 @@
 import json
-from datetime import datetime
-from typing import List, Optional
+from datetime import datetime, timezone
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -53,7 +54,7 @@ def _log(db: Session, action: str, target: str, detail: str):
 # ==================== 入会申请与资格审核 (FR-AM-001, FR-AM-002, BR-001) ====================
 
 
-@router.get("/applications", response_model=List[ApplicationOut])
+@router.get("/applications", response_model=list[ApplicationOut])
 def list_applications(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
@@ -90,7 +91,7 @@ def review_application(app_id: int, payload: ApplicationReview, db: Session = De
 
     app_obj.interview_note = payload.interview_note
     app_obj.review_note = payload.review_note
-    app_obj.reviewed_at = datetime.utcnow()
+    app_obj.reviewed_at = datetime.now(timezone.utc).replace(tzinfo=None)
 
     if payload.approved:
         app_obj.status = "APPROVED"
@@ -130,7 +131,7 @@ def review_application(app_id: int, payload: ApplicationReview, db: Session = De
 # ==================== 会员档案与生命周期流转 (FR-AM-003, FR-AM-004, FR-AM-007, FR-AM-010) ====================
 
 
-@router.get("/members", response_model=List[MemberOut])
+@router.get("/members", response_model=list[MemberOut])
 def list_members(
     keyword: Optional[str] = None,
     stage: Optional[str] = None,
@@ -319,7 +320,7 @@ def change_member_status(member_id: int, payload: MemberStatusChange, db: Sessio
 # ==================== 周期会员考核与自动状态机 (FR-AM-005/006/007, BR-002/003/004) ====================
 
 
-@router.get("/assessments", response_model=List[MemberAssessmentOut])
+@router.get("/assessments", response_model=list[MemberAssessmentOut])
 def list_member_assessments(
     member_id: Optional[int] = None,
     direction: Optional[str] = None,
@@ -412,7 +413,7 @@ def create_member_assessment(payload: MemberAssessmentCreate, db: Session = Depe
 # ==================== 组织任职与奖惩评优 (FR-AM-008, FR-AM-009) ====================
 
 
-@router.get("/positions", response_model=List[OrgPositionOut])
+@router.get("/positions", response_model=list[OrgPositionOut])
 def list_positions(db: Session = Depends(get_db)):
     rows = (
         db.query(OrgPosition)
@@ -457,7 +458,7 @@ def create_position(payload: OrgPositionCreate, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/rewards", response_model=List[RewardOut])
+@router.get("/rewards", response_model=list[RewardOut])
 def list_rewards(db: Session = Depends(get_db)):
     rows = db.query(RewardPunishment).join(Member).order_by(RewardPunishment.created_at.desc()).all()
     return [

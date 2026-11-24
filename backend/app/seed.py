@@ -1,5 +1,6 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -25,7 +26,7 @@ def seed_database(db: Session) -> None:
     if db.query(Member).first() is not None:
         return
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     # 1. 初始化会员（覆盖备选、正式竞赛、正式非竞赛、观察状态）
     members_data = [
@@ -145,7 +146,7 @@ def seed_database(db: Session) -> None:
     db.add_all(members_data)
     db.flush()
 
-    m_li, m_shang, m_mo, m_qin, m_chen, m_lin, m_zhou, m_xu = members_data
+    m_li, m_shang, m_mo, m_qin, m_chen, m_lin, m_zhou, _m_xu = members_data
 
     # 2. 入会申请（含待审核与已通过转备选记录）
     applications = [
@@ -524,7 +525,7 @@ def seed_database(db: Session) -> None:
             m_li,
             "2026春季摸底能力评估",
             "2026-S1",
-            dict(lang_basic=86, basic_algo=84, simulation_logic=72, boundary_handling=66, knowledge_combo=78, coding_debug=75),
+            {"lang_basic": 86, "basic_algo": 84, "simulation_logic": 72, "boundary_handling": 66, "knowledge_combo": 78, "coding_debug": 75},
             "基础算法扎实，但大模拟与边界细节偶尔罚时偏高。",
             now - timedelta(days=90),
         ),
@@ -532,7 +533,7 @@ def seed_database(db: Session) -> None:
             m_li,
             "2026秋季赛前能力评估",
             "2026-S2",
-            dict(lang_basic=92, basic_algo=90, simulation_logic=81, boundary_handling=78, knowledge_combo=88, coding_debug=84),
+            {"lang_basic": 92, "basic_algo": 90, "simulation_logic": 81, "boundary_handling": 78, "knowledge_combo": 88, "coding_debug": 84},
             "经专项补强后边界处理显著提升，当前各项能力均衡达到区域赛主力水平。",
             now - timedelta(days=7),
         ),
@@ -540,7 +541,7 @@ def seed_database(db: Session) -> None:
             m_shang,
             "2026春季摸底能力评估",
             "2026-S1",
-            dict(lang_basic=80, basic_algo=74, simulation_logic=64, boundary_handling=58, knowledge_combo=62, coding_debug=68),
+            {"lang_basic": 80, "basic_algo": 74, "simulation_logic": 64, "boundary_handling": 58, "knowledge_combo": 62, "coding_debug": 68},
             "语言基础较好，边界特判与多知识点融合题稳定性待加强。",
             now - timedelta(days=85),
         ),
@@ -548,7 +549,7 @@ def seed_database(db: Session) -> None:
             m_shang,
             "2026秋季阶段能力评估",
             "2026-S2",
-            dict(lang_basic=88, basic_algo=82, simulation_logic=74, boundary_handling=65, knowledge_combo=68, coding_debug=76),
+            {"lang_basic": 88, "basic_algo": 82, "simulation_logic": 74, "boundary_handling": 65, "knowledge_combo": 68, "coding_debug": 76},
             "算法与调试能力进步明显，建议继续跟进「边界处理」与「知识点组合」题单。",
             now - timedelta(days=6),
         ),
@@ -556,7 +557,7 @@ def seed_database(db: Session) -> None:
             m_mo,
             "2026春季摸底能力评估",
             "2026-S1",
-            dict(lang_basic=84, basic_algo=80, simulation_logic=62, boundary_handling=71, knowledge_combo=76, coding_debug=64),
+            {"lang_basic": 84, "basic_algo": 80, "simulation_logic": 62, "boundary_handling": 71, "knowledge_combo": 76, "coding_debug": 64},
             "思维速度快、DP熟练，但在复杂大模拟和长代码调试上耗时偏多。",
             now - timedelta(days=80),
         ),
@@ -564,7 +565,7 @@ def seed_database(db: Session) -> None:
             m_mo,
             "2026秋季阶段能力评估",
             "2026-S2",
-            dict(lang_basic=90, basic_algo=86, simulation_logic=68, boundary_handling=80, knowledge_combo=85, coding_debug=66),
+            {"lang_basic": 90, "basic_algo": 86, "simulation_logic": 68, "boundary_handling": 80, "knowledge_combo": 85, "coding_debug": 66},
             "DP 与组合应用优势突出，下一阶段重点补强模拟状态机与对拍调试效率。",
             now - timedelta(days=5),
         ),
@@ -572,7 +573,7 @@ def seed_database(db: Session) -> None:
             m_chen,
             "2026秋季诊断能力评估",
             "2026-S2",
-            dict(lang_basic=72, basic_algo=64, simulation_logic=58, boundary_handling=52, knowledge_combo=48, coding_debug=55),
+            {"lang_basic": 72, "basic_algo": 64, "simulation_logic": 58, "boundary_handling": 52, "knowledge_combo": 48, "coding_debug": 55},
             "观察期专项摸底：基础算法与边界处理薄弱，需按题单完成补强后申请复评。",
             now - timedelta(days=4),
         ),

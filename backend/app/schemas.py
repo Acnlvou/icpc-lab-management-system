@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, Optional
 
+from pydantic import BaseModel, ConfigDict, Field
 
 # ==================== 协会管理 Schemas ====================
 
@@ -95,7 +95,7 @@ class MemberAssessmentCreate(BaseModel):
     cycle: str = Field(..., min_length=1, max_length=64)
     score: float = Field(..., ge=0, le=100)
     passed: bool
-    metrics: Dict[str, Any] = Field(default_factory=dict)
+    metrics: dict[str, Any] = Field(default_factory=dict)
     comment: str = Field(default="")
 
 
@@ -108,7 +108,7 @@ class MemberAssessmentOut(BaseModel):
     direction: str
     score: float
     passed: bool
-    metrics: Dict[str, Any]
+    metrics: dict[str, Any]
     comment: str
     resulting_status: str
     created_at: datetime
@@ -199,7 +199,7 @@ class ProblemCreate(BaseModel):
     external_url: str = Field(default="", max_length=255)
     difficulty: str = Field(default="普及")
     status: str = Field(default="ACTIVE")
-    tag_ids: List[int] = Field(default_factory=list)
+    tag_ids: list[int] = Field(default_factory=list)
 
 
 class ProblemUpdate(BaseModel):
@@ -211,7 +211,7 @@ class ProblemUpdate(BaseModel):
     external_url: Optional[str] = None
     difficulty: Optional[str] = None
     status: Optional[str] = None
-    tag_ids: Optional[List[int]] = None
+    tag_ids: Optional[list[int]] = None
 
 
 class ProblemBriefOut(BaseModel):
@@ -222,7 +222,7 @@ class ProblemBriefOut(BaseModel):
     external_url: str
     difficulty: str
     status: str
-    tags: List[TagOut]
+    tags: list[TagOut]
     solution_count: int
     created_at: datetime
 
@@ -231,7 +231,7 @@ class ProblemDetailOut(ProblemBriefOut):
     statement: str
     sample_input: str
     sample_output: str
-    solutions: List[ProblemSolutionOut]
+    solutions: list[ProblemSolutionOut]
 
 
 class ProblemListCreate(BaseModel):
@@ -240,7 +240,7 @@ class ProblemListCreate(BaseModel):
     target_stage: str = Field(default="日常训练")
     target_dimension: str = Field(default="")
     description: str = Field(default="")
-    problem_ids: List[int] = Field(default_factory=list)
+    problem_ids: list[int] = Field(default_factory=list)
 
 
 class ProblemListItemOut(BaseModel):
@@ -260,7 +260,7 @@ class ProblemListOut(BaseModel):
     target_dimension: str
     description: str
     created_at: datetime
-    items: List[ProblemListItemOut]
+    items: list[ProblemListItemOut]
 
 
 # ==================== 个人能力评估 Schemas ====================
@@ -300,7 +300,7 @@ class AbilityAssessmentOut(BaseModel):
     knowledge_combo: int
     coding_debug: int
     overall_score: float
-    weak_points: List[WeakPointOut]
+    weak_points: list[WeakPointOut]
     summary: str
     created_at: datetime
 
