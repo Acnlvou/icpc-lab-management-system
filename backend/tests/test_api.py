@@ -231,7 +231,7 @@ def test_ability_assessment_independence_and_weak_points(client):
     """验证 FR-AB-001..005 与 BR-005：能力评估独立于会员考核、仅面向竞赛会员、自动识别薄弱项与推荐题单"""
     members = client.get("/api/v1/association/members").json()
     non_comp = next(m for m in members if m["direction"] == "NON_COMPETITION")
-    comp = next(m for m in members if m["direction"] == "COMPETITION" and m["stage"] == "FORMAL")
+    comp = next(m for m in members if m["student_no"] == "202421091189")
 
     # 非竞赛会员不可创建个人能力评估 (BR-005)
     bad = client.post(
