@@ -12,10 +12,10 @@
       <div class="nav-group-label">总览</div>
       <router-link to="/" class="nav-item">
         <span>系统总览看板</span>
-        <span class="nav-pill">50%</span>
+        <span class="nav-pill">100%</span>
       </router-link>
 
-      <div class="nav-group-label">已交付核心模块 (Sprint 1-2)</div>
+      <div class="nav-group-label">已交付核心模块 (Sprint 1-4)</div>
       <router-link to="/association" class="nav-item">
         <span>协会管理中心</span>
         <span class="nav-pill">FR-AM</span>
@@ -28,24 +28,32 @@
         <span>个人能力评估</span>
         <span class="nav-pill">FR-AB</span>
       </router-link>
+      <router-link to="/training" class="nav-item">
+        <span>训练与集训管理</span>
+        <span class="nav-pill">FR-TRN</span>
+      </router-link>
+      <router-link to="/contest" class="nav-item">
+        <span>队伍与竞赛管理</span>
+        <span class="nav-pill">FR-TEAM</span>
+      </router-link>
 
-      <div class="nav-group-label">下阶段规划 (Sprint 3-4)</div>
+      <div class="nav-group-label">项目交付</div>
       <router-link to="/roadmap" class="nav-item">
-        <span>训练与竞赛规划</span>
-        <span class="nav-pill">Next</span>
+        <span>里程碑与交付总览</span>
+        <span class="nav-pill">v1.0.0</span>
       </router-link>
 
       <div class="sidebar-footer">
         <div style="display:flex;justify-content:space-between;color:#e2e8f0;font-weight:600;">
           <span>阶段进度</span>
-          <span>50%</span>
+          <span>100%</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width:50%"></div>
+          <div class="progress-fill" style="width:100%"></div>
         </div>
         <div style="margin-top:8px;font-size:11px;line-height:1.4;">
           架构：Vue 3 + FastAPI + SQLite<br />
-          版本：v0.5.0-milestone
+          版本：v1.0.0 正式版
         </div>
       </div>
     </aside>

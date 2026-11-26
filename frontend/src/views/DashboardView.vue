@@ -31,6 +31,29 @@
       </div>
     </div>
 
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="kpi-card">
+        <div class="kpi-label">训练计划 / 周任务</div>
+        <div class="kpi-value" style="color:#2563eb;">{{ overview.kpi.total_training_plans || 0 }} / {{ overview.kpi.total_training_tasks || 0 }}</div>
+        <div class="kpi-sub">个人补强计划与打卡考勤闭环 (BR-007)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">寒暑假集训</div>
+        <div class="kpi-value" style="color:#0ea5e9;">{{ overview.kpi.total_training_camps || 0 }}</div>
+        <div class="kpi-sub">寒假 / 暑假多校集训看板 (FR-WIN/SUM)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">队伍档案</div>
+        <div class="kpi-value" style="color:#7c3aed;">{{ overview.kpi.total_teams || 0 }}</div>
+        <div class="kpi-sub">能力互补组队与调整流水 (BR-008)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">校赛 / XCPC 赛事</div>
+        <div class="kpi-value" style="color:#059669;">{{ overview.kpi.total_school_contests || 0 }} / {{ overview.kpi.total_xcpc || 0 }}</div>
+        <div class="kpi-sub">校赛晋级候补递补 + 成绩归档 (BR-009/010)</div>
+      </div>
+    </div>
+
     <div class="grid-2" style="margin-bottom:18px;">
       <div class="card">
         <div class="card-title">
