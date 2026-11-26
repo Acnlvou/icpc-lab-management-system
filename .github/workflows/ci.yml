@@ -1,0 +1,44 @@
+name: Kcat CI (Ruff + Pytest + Vue Build)
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  backend-check:
+    name: Backend Lint & Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install backend dependencies & Ruff
+        run: |
+          pip install -r backend/requirements.txt ruff
+      - name: Run Ruff static check
+        run: ruff check backend
+      - name: Run Pytest business rule suite
+        working-directory: backend
+        env:
+          PYTHONPATH: .
+        run: pytest -v
+
+  frontend-build:
+    name: Frontend Vue 3 Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+      - name: Build Vue 3 production bundle
+        working-directory: frontend
+        run: npm run build
