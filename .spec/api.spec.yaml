@@ -1,14 +1,21 @@
 openapi: "3.0.3"
 info:
-  title: "ICPC实验室管理系统 API 契约规范"
-  version: "0.5.0"
-  description: "基于 SDD 规范驱动开发定义的阶段性（50%）后端契约，覆盖协会管理、题库管理、个人能力评估与统计看板。"
+  title: "ICPC实验室管理系统全量 API 契约规范 (Sprint 1 ~ Sprint 4)"
+  version: "1.0.0-spec"
+  description: "基于 SDD 规范驱动开发冻结的全量后端契约，覆盖协会管理、题库管理、个人能力评估、训练与集训管理、队伍与校赛/XCPC竞赛管理及系统辅助。"
 servers:
   - url: "http://127.0.0.1:8000/api/v1"
+
 paths:
+  # ==================== 系统总览与辅助 (FR-SYS) ====================
   /dashboard/overview:
     get:
-      summary: "获取系统总览统计、进度里程碑与近期公告"
+      summary: "获取系统总览统计、进度里程碑、公告与近期操作日志"
+  /dashboard/announcements:
+    get: { summary: "查询通知公告列表 (FR-SYS-002)" }
+    post: { summary: "发布通知公告 (FR-SYS-002)" }
+
+  # ==================== Sprint 1: 协会管理 (FR-AM) ====================
   /association/applications:
     get: { summary: "查询入会申请列表" }
     post: { summary: "提交入会申请 (FR-AM-001)" }
@@ -33,6 +40,8 @@ paths:
   /association/positions:
     get: { summary: "查询组织架构与任职履历 (FR-AM-009)" }
     post: { summary: "新增部门任职记录 (FR-AM-009)" }
+
+  # ==================== Sprint 1-2: 题库管理 (FR-QB) ====================
   /question-bank/tags:
     get: { summary: "查询知识点与实现能力标签 (FR-QB-001)" }
     post: { summary: "新增知识点或实现能力标签 (FR-QB-001)" }
@@ -42,7 +51,7 @@ paths:
   /question-bank/problems/{id}:
     get: { summary: "获取题目详情、关联标签与题解列表 (FR-QB-002/005)" }
     put: { summary: "更新题目信息与知识点关联 (FR-QB-002/004)" }
-    delete: { summary: "逻辑停用或删除题目 (FR-QB-002)" }
+    delete: { summary: "删除题目及级联清理多对多关联与题解 (FR-QB-002)" }
   /question-bank/problems/{id}/solutions:
     post: { summary: "为题目添加题解与参考代码 (FR-QB-005)" }
   /question-bank/problem-lists:
@@ -50,8 +59,82 @@ paths:
     post: { summary: "创建专题题单并编排题目顺序 (FR-QB-006)" }
   /question-bank/stats:
     get: { summary: "获取题库知识点覆盖、难度与来源分布统计 (FR-QB-007)" }
+
+  # ==================== Sprint 2: 个人能力评估 (FR-AB) ====================
   /ability/assessments:
     get: { summary: "查询个人能力评估记录列表 (FR-AB-001/005)" }
     post: { summary: "提交竞赛会员六维能力评估并自动识别薄弱项 (FR-AB-001..004, BR-005)" }
   /ability/members/{member_id}/profile:
     get: { summary: "获取竞赛会员能力画像、薄弱项清单、推荐补强题单及历次趋势对比 (FR-AB-003..005)" }
+
+  # ==================== Sprint 3: 训练与集训管理 (FR-TRN / FR-WIN / FR-SUM, BR-007) ====================
+  /training/plans:
+    get:
+      summary: "查询整体训练计划与个人补强训练规划 (FR-TRN-001/002)"
+      description: "支持按 plan_type(OVERALL|PERSONAL)、member_id、status 过滤"
+    post:
+      summary: "创建整体或个人训练规划；个人计划自动读取最近一次能力评估薄弱项并留存 source_assessment_id 快照 (FR-TRN-001/002, BR-007)"
+  /training/tasks:
+    get:
+      summary: "查询训练任务列表及完成/考勤进度 (FR-TRN-003/005)"
+      description: "支持按 plan_id、member_id、status 过滤"
+    post:
+      summary: "下发训练任务，支持关联题库 problem_list_id (FR-TRN-003)"
+  /training/tasks/{id}/checkin:
+    post:
+      summary: "提交训练打卡、考勤状态、补题数量与阶段反馈 (FR-TRN-004/006)"
+  /training/camps:
+    get:
+      summary: "查询寒假集训(WINTER)与暑假多校集训(SUMMER)列表 (FR-WIN-001..003, FR-SUM-001..003)"
+    post:
+      summary: "创建寒/暑假集训计划与多校联训记录，暑期集训可关联队伍 team_id (FR-WIN/SUM, BR-008)"
+  /training/camps/{id}/summary:
+    post:
+      summary: "记录集训总结与阶段复盘，衔接下一轮能力评估 (FR-WIN-003, FR-SUM-003)"
+
+  # ==================== Sprint 4: 队伍与竞赛管理 (FR-TEAM / FR-CMP / FR-NC / FR-XCPC, BR-008~010) ====================
+  /contest/teams:
+    get:
+      summary: "查询队伍档案列表（支持 season/status/keyword 过滤）(FR-TEAM-003)"
+    post:
+      summary: "组建正式队伍并留存成员入队能力快照 (FR-TEAM-001/003)"
+  /contest/teams/recommend:
+    get:
+      summary: "基于竞赛会员最新六维能力画像生成能力互补候选组合（路由须声明在 /teams/{id} 之前）(FR-TEAM-001/002, BR-005)"
+  /contest/teams/{id}:
+    get:
+      summary: "获取队伍完整档案：成员时间线、调整记录、关联暑期集训与 XCPC 历史成绩 (FR-TEAM-003, BR-008)"
+  /contest/teams/{id}/adjust:
+    post:
+      summary: "追加队伍成员调整记录（ADD/REMOVE/REPLACE），保留历史不改写过往成绩 (FR-TEAM-004, BR-008)"
+  /contest/school-contests:
+    get:
+      summary: "查询校赛列表及初赛/决赛晋级与候补状态 (FR-CMP-001..008)"
+    post:
+      summary: "创建校赛方案或录入个人选手报名/初赛排名（个人制 member_id）(FR-CMP-001..004, BR-009)"
+  /contest/school-contests/{id}/entries:
+    get:
+      summary: "查询指定校赛的个人选手报名、初赛排名、确认及候补递补状态列表 (FR-CMP-002/004/006)"
+    post:
+      summary: "录入校赛个人选手报名或初赛成绩排名 (FR-CMP-002/004)"
+  /contest/school-contests/{id}/confirm:
+    post:
+      summary: "晋级选手决赛参赛确认；放弃或逾期(auto=True)时同事务按 prelim_rank 升序自动候补递补 (FR-CMP-006/007, BR-009)"
+  /contest/school-contests/{id}/anomalies:
+    get:
+      summary: "查询校赛线上初赛异常行为核查材料列表 (FR-CMP-005, BR-010)"
+    post:
+      summary: "登记线上初赛异常行为核查材料，状态固定为 PENDING_REVIEW，禁止自动判作弊 (FR-CMP-005, BR-010)"
+  /contest/school-contests/{id}/anomalies/{anomaly_id}/review:
+    put:
+      summary: "赛事组织人员填写人工复核结论（CONFIRMED_VIOLATION|EXONERATED|NEED_MORE_EVIDENCE），不覆盖原始材料 (FR-CMP-005, BR-010)"
+  /contest/non-xcpc:
+    get:
+      summary: "查询非 XCPC 赛事及个人成绩归档（蓝桥杯/天梯赛/码蹄杯/百度之星）(FR-NC-001/002)"
+    post:
+      summary: "登记非 XCPC 赛事或个人参赛获奖记录（个人制 member_id）(FR-NC-001/002)"
+  /contest/xcpc:
+    get:
+      summary: "查询 XCPC 网络预选赛、队伍综合排序与正赛赛站结果（按 team_id 关联队伍档案）(FR-XCPC-001..004, BR-008)"
+    post:
+      summary: "录入 XCPC 网络预选赛或正赛队伍成绩与赛站分配（team_id 非空）(FR-XCPC-001..004, BR-008)"
