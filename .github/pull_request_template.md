@@ -14,6 +14,7 @@
 
 ## 提交前自检清单（SDD 规范门禁）
 - [ ] 分支基于最新 `develop` 切出，无无关文件误提交
+- [ ] 所有 Commit 提交信息与 PR 说明均已使用中文（`<type>(<scope>): <中文说明>`）
 - [ ] 后端已执行 `ruff check backend`（0 警告）
 - [ ] 后端已执行 `cd backend && PYTHONPATH=. .venv/bin/pytest -v`（全部通过）
 - [ ] 前端已执行 `npm --prefix frontend run build`（构建通过）

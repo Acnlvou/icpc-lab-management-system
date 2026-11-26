@@ -55,18 +55,18 @@ gitGraph
 
 ---
 
-## 二、Conventional Commits 提交规范
+## 二、Conventional Commits 全中文提交规范
 
-每次提交必须遵循 `<type>(<scope>): <subject>` 格式，做到小步高频、语义清晰：
+每次提交必须遵循 `<type>(<scope>): <中文简要说明>` 格式，**说明部分统一使用中文**，做到小步高频、语义清晰，便于团队协作与课程报告归档：
 
-| Type | 含义 | 示例 |
+| Type | 含义 | 中文提交示例 |
 | :--- | :--- | :--- |
-| `docs` | 文档与 SDD 规范更新 | `docs(spec): add SDD rules, ER schema and API contract` |
-| `feat` | 新增业务功能 | `feat(association): implement periodic assessment state flow (BR-003)` |
-| `fix` | 修复缺陷 | `fix(question-bank): fix AND intersection query on multi-tag filter` |
-| `test` | 新增或完善自动化测试 | `test(backend): add pytest cases covering BR-001 to BR-007` |
-| `refactor` | 代码重构（不改变外部行为） | `refactor(frontend): extract reusable SVG radar chart component` |
-| `chore` | 工程脚手架、依赖与脚本配置 | `chore(env): add dev startup script and sqlite gitignore` |
+| `docs` | 文档与 SDD 规范更新 | `docs(spec): 补齐Sprint 3与Sprint 4接口契约和业务规则` |
+| `feat` | 新增业务功能 | `feat(association): 实现周期考核与BR-003状态自动流转` |
+| `fix` | 修复缺陷 | `fix(question-bank): 修复多标签交集组合检索漏筛问题` |
+| `test` | 新增或完善自动化测试 | `test(backend): 补充覆盖BR-007至BR-010的pytest验收用例` |
+| `refactor` | 代码重构（不改变外部行为） | `refactor(frontend): 抽离可复用的SVG六维能力雷达图组件` |
+| `chore` | 工程脚手架、依赖与脚本配置 | `chore(env): 新增一键启动脚本并补充ruff依赖` |
 
 ---
 

@@ -46,3 +46,4 @@
   - 统一前缀 `/api/v1/{module}`；状态码语义：`200` 查询/流转、`201` 创建、`400` 业务冲突、`404` 不存在、`409` 唯一键冲突、`422` 参数校验失败；所有出参必须经过 Pydantic Schema 或显式字典序列化，禁止直接返回未序列化 ORM 对象。
 - **[G-05] 模块化自动化验收测试**：每个核心接口与业务规则（`BR-001 ~ BR-010`）均须在 `backend/tests/` 下有对应 pytest 自动化用例（允许按迭代拆分为 `test_api.py`、`test_sprint3_training.py`、`test_sprint4_contest.py`、`test_sprint3_4.py`），测试文件必须通过 `ICPC_DATABASE_URL` 指向独立临时 SQLite 库，且不得破坏既有 7 条用例。
 - **[G-06] 前后端解耦与纯净提交**：前端禁止硬编码模拟业务数据，统一经 `frontend/src/api/client.js` 访问后端；严禁向 Git 提交 `*.db`、`.venv/`、`node_modules/`、`frontend/dist/` 或无关目录。
+- **[G-07] 全中文提交与 PR 规范**：所有 Git Commit 信息、PR 标题及说明统一使用中文（格式：`<type>(<scope>): <中文说明>`，例如 `feat(training): 新增关联能力薄弱项的个人训练计划接口`），便于团队协作与课程验收归档。
