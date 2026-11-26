@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "ICPC实验室管理系统全量 API 契约规范 (Sprint 1 ~ Sprint 4)"
   version: "1.0.0-spec"
-  description: "基于 SDD 规范驱动开发冻结的全量后端契约，覆盖协会管理、题库管理、个人能力评估、训练与集训管理、队伍与校赛/XCPC竞赛管理及系统辅助。"
+  description: "基于 SDD 规范驱动开发冻结的全量后端契约，覆盖协会管理、题库管理、个人能力评估、训练与集训管理、队伍与校赛/XCPC竞赛管理及系统辅助。Sprint 3 & Sprint 4 端点已冻结字段级请求/响应 Schema（统一 snake_case，对齐 docs/13 第 2 节与 BR-007 ~ BR-010）；校赛放弃参赛状态统一锁定为 ABANDONED（严禁使用 DECLINED）。"
 servers:
   - url: "http://127.0.0.1:8000/api/v1"
 
@@ -72,69 +72,1037 @@ paths:
     get:
       summary: "查询整体训练计划与个人补强训练规划 (FR-TRN-001/002)"
       description: "支持按 plan_type(OVERALL|PERSONAL)、member_id、status 过滤"
+      parameters:
+        - name: plan_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["OVERALL", "PERSONAL"]
+        - name: member_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "训练计划列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingPlan"
     post:
       summary: "创建整体或个人训练规划；个人计划自动读取最近一次能力评估薄弱项并留存 source_assessment_id 快照 (FR-TRN-001/002, BR-007)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingPlanCreate"
+      responses:
+        "201":
+          description: "创建成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingPlan"
+        "400":
+          description: "非竞赛会员创建个人补强计划或缺少能力评估记录 (BR-007)"
   /training/tasks:
     get:
       summary: "查询训练任务列表及完成/考勤进度 (FR-TRN-003/005)"
       description: "支持按 plan_id、member_id、status 过滤"
+      parameters:
+        - name: plan_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: member_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["PENDING", "IN_PROGRESS", "DONE"]
+      responses:
+        "200":
+          description: "训练任务列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingTask"
     post:
       summary: "下发训练任务，支持关联题库 problem_list_id (FR-TRN-003)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingTaskCreate"
+      responses:
+        "201":
+          description: "任务下发成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingTask"
   /training/tasks/{id}/checkin:
     post:
       summary: "提交训练打卡、考勤状态、补题数量与阶段反馈 (FR-TRN-004/006)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingTaskCheckin"
+      responses:
+        "200":
+          description: "打卡更新成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingTask"
+        "404":
+          description: "训练任务不存在"
   /training/camps:
     get:
       summary: "查询寒假集训(WINTER)与暑假多校集训(SUMMER)列表 (FR-WIN-001..003, FR-SUM-001..003)"
+      parameters:
+        - name: camp_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["WINTER", "SUMMER"]
+      responses:
+        "200":
+          description: "集训列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingCamp"
     post:
-      summary: "创建寒/暑假集训计划与多校联训记录，暑期集训可关联队伍 team_id (FR-WIN/SUM, BR-008)"
+      summary: "创建寒/暑假集训计划与多校联训记录，暑期集训(SUMMER)须关联非空 team_id (FR-WIN/SUM, BR-008)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingCampCreate"
+      responses:
+        "201":
+          description: "集训创建成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingCamp"
+        "400":
+          description: "暑期集训未关联有效队伍 team_id (BR-008)"
   /training/camps/{id}/summary:
     post:
       summary: "记录集训总结与阶段复盘，衔接下一轮能力评估 (FR-WIN-003, FR-SUM-003)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingCampSummary"
+      responses:
+        "200":
+          description: "总结更新成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingCamp"
+        "404":
+          description: "集训记录不存在"
 
   # ==================== Sprint 4: 队伍与竞赛管理 (FR-TEAM / FR-CMP / FR-NC / FR-XCPC, BR-008~010) ====================
   /contest/teams:
     get:
       summary: "查询队伍档案列表（支持 season/status/keyword 过滤）(FR-TEAM-003)"
+      parameters:
+        - name: season
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "队伍档案列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
     post:
       summary: "组建正式队伍并留存成员入队能力快照 (FR-TEAM-001/003)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamCreate"
+      responses:
+        "201":
+          description: "队伍创建成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
   /contest/teams/recommend:
     get:
       summary: "基于竞赛会员最新六维能力画像生成能力互补候选组合（路由须声明在 /teams/{id} 之前）(FR-TEAM-001/002, BR-005)"
+      responses:
+        "200":
+          description: "能力互补候选队伍推荐列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamRecommendCandidate"
   /contest/teams/{id}:
     get:
       summary: "获取队伍完整档案：成员时间线、调整记录、关联暑期集训与 XCPC 历史成绩 (FR-TEAM-003, BR-008)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "队伍完整档案"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        "404":
+          description: "队伍不存在"
   /contest/teams/{id}/adjust:
     post:
       summary: "追加队伍成员调整记录（ADD/REMOVE/REPLACE），保留历史不改写过往成绩 (FR-TEAM-004, BR-008)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamAdjustRequest"
+      responses:
+        "200":
+          description: "调整记录已追加，返回最新队伍档案"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        "400":
+          description: "成员调整参数冲突"
+        "404":
+          description: "队伍不存在"
   /contest/school-contests:
     get:
       summary: "查询校赛列表及初赛/决赛晋级与候补状态 (FR-CMP-001..008)"
+      responses:
+        "200":
+          description: "校赛列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SchoolContest"
     post:
-      summary: "创建校赛方案或录入个人选手报名/初赛排名（个人制 member_id）(FR-CMP-001..004, BR-009)"
+      summary: "创建校赛方案 (FR-CMP-001)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchoolContestCreate"
+      responses:
+        "201":
+          description: "校赛创建成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolContest"
   /contest/school-contests/{id}/entries:
     get:
       summary: "查询指定校赛的个人选手报名、初赛排名、确认及候补递补状态列表 (FR-CMP-002/004/006)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "校赛个人选手条目列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SchoolContestEntry"
     post:
-      summary: "录入校赛个人选手报名或初赛成绩排名 (FR-CMP-002/004)"
+      summary: "录入校赛个人选手报名或初赛成绩排名（个人制 member_id）(FR-CMP-002/004, BR-009)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchoolContestEntryCreate"
+      responses:
+        "201":
+          description: "选手/初赛成绩录入成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolContestEntry"
   /contest/school-contests/{id}/confirm:
     post:
-      summary: "晋级选手决赛参赛确认；放弃或逾期(auto=True)时同事务按 prelim_rank 升序自动候补递补 (FR-CMP-006/007, BR-009)"
+      summary: "晋级选手决赛参赛确认；放弃(ABANDONED)或逾期(auto=True)时同事务按 prelim_rank 升序自动候补递补 (FR-CMP-006/007, BR-009)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchoolContestConfirmRequest"
+      responses:
+        "200":
+          description: "确认或放弃递补处理成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolContestEntry"
+        "400":
+          description: "重复确认或当前状态不允许确认 (BR-009)"
   /contest/school-contests/{id}/anomalies:
     get:
       summary: "查询校赛线上初赛异常行为核查材料列表 (FR-CMP-005, BR-010)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "异常核查记录列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Anomaly"
     post:
       summary: "登记线上初赛异常行为核查材料，状态固定为 PENDING_REVIEW，禁止自动判作弊 (FR-CMP-005, BR-010)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnomalyCreate"
+      responses:
+        "201":
+          description: "核查材料已留存"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
   /contest/school-contests/{id}/anomalies/{anomaly_id}/review:
     put:
       summary: "赛事组织人员填写人工复核结论（CONFIRMED_VIOLATION|EXONERATED|NEED_MORE_EVIDENCE），不覆盖原始材料 (FR-CMP-005, BR-010)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: anomaly_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnomalyReviewRequest"
+      responses:
+        "200":
+          description: "人工复核结论写入成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Anomaly"
+        "404":
+          description: "异常记录不存在"
   /contest/non-xcpc:
     get:
       summary: "查询非 XCPC 赛事及个人成绩归档（蓝桥杯/天梯赛/码蹄杯/百度之星）(FR-NC-001/002)"
+      responses:
+        "200":
+          description: "非 XCPC 个人获奖记录列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NonXcpcResult"
     post:
-      summary: "登记非 XCPC 赛事或个人参赛获奖记录（个人制 member_id）(FR-NC-001/002)"
+      summary: "登记非 XCPC 赛事或个人参赛获奖记录（个人制 member_id）(FR-NC-001/002, BR-008)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonXcpcResultCreate"
+      responses:
+        "201":
+          description: "非 XCPC 记录创建成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NonXcpcResult"
   /contest/xcpc:
     get:
       summary: "查询 XCPC 网络预选赛、队伍综合排序与正赛赛站结果（按 team_id 关联队伍档案）(FR-XCPC-001..004, BR-008)"
+      responses:
+        "200":
+          description: "XCPC 队伍成绩列表"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/XcpcResult"
     post:
       summary: "录入 XCPC 网络预选赛或正赛队伍成绩与赛站分配（team_id 非空）(FR-XCPC-001..004, BR-008)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/XcpcResultCreate"
+      responses:
+        "201":
+          description: "XCPC 队伍成绩录入成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/XcpcResult"
+        "400":
+          description: "队伍不存在或未关联有效 team_id (BR-008)"
+
+components:
+  schemas:
+    # ==================== Sprint 3: 训练域 Schemas ====================
+    TrainingPlanCreate:
+      type: object
+      required: ["name", "plan_type"]
+      properties:
+        name:
+          type: string
+        plan_type:
+          type: string
+          enum: ["OVERALL", "PERSONAL"]
+        member_id:
+          type: integer
+          nullable: true
+          description: "plan_type == PERSONAL 时必填且须为竞赛会员 (BR-007)"
+        cycle:
+          type: string
+          nullable: true
+        problem_list_id:
+          type: integer
+          nullable: true
+        description:
+          type: string
+          nullable: true
+    TrainingPlan:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        plan_type:
+          type: string
+          enum: ["OVERALL", "PERSONAL"]
+        member_id:
+          type: integer
+          nullable: true
+        member_name:
+          type: string
+          nullable: true
+        cycle:
+          type: string
+          nullable: true
+        source_assessment_id:
+          type: integer
+          nullable: true
+        problem_list_id:
+          type: integer
+          nullable: true
+        problem_list_title:
+          type: string
+          nullable: true
+        target_dimension:
+          type: string
+          nullable: true
+        status:
+          type: string
+        description:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+    TrainingTaskCreate:
+      type: object
+      required: ["title"]
+      properties:
+        title:
+          type: string
+        plan_id:
+          type: integer
+          nullable: true
+        week:
+          type: string
+          nullable: true
+        member_id:
+          type: integer
+          nullable: true
+        problem_list_id:
+          type: integer
+          nullable: true
+    TrainingTaskCheckin:
+      type: object
+      properties:
+        attendance:
+          type: string
+          enum: ["PRESENT", "LATE", "ABSENT"]
+        solved_count:
+          type: integer
+        remark:
+          type: string
+          nullable: true
+    TrainingTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        plan_id:
+          type: integer
+          nullable: true
+        plan_name:
+          type: string
+          nullable: true
+        title:
+          type: string
+        week:
+          type: string
+          nullable: true
+        problem_list_id:
+          type: integer
+          nullable: true
+        problem_list_title:
+          type: string
+          nullable: true
+        member_id:
+          type: integer
+          nullable: true
+        member_name:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: ["PENDING", "IN_PROGRESS", "DONE"]
+        attendance:
+          type: string
+          nullable: true
+          enum: ["PRESENT", "LATE", "ABSENT"]
+        solved_count:
+          type: integer
+        total_count:
+          type: integer
+        deadline:
+          type: string
+          nullable: true
+        remark:
+          type: string
+          nullable: true
+    TrainingCampCreate:
+      type: object
+      required: ["name", "camp_type"]
+      properties:
+        name:
+          type: string
+        camp_type:
+          type: string
+          enum: ["WINTER", "SUMMER"]
+        term:
+          type: string
+          nullable: true
+        team_id:
+          type: integer
+          nullable: true
+          description: "camp_type == SUMMER 时按 BR-008 必填非空"
+        location:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+    TrainingCampSummary:
+      type: object
+      required: ["summary"]
+      properties:
+        summary:
+          type: string
+    TrainingCamp:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        camp_type:
+          type: string
+          enum: ["WINTER", "SUMMER"]
+        term:
+          type: string
+          nullable: true
+        team_id:
+          type: integer
+          nullable: true
+        team_name:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          nullable: true
+        end_date:
+          type: string
+          nullable: true
+        status:
+          type: string
+        summary:
+          type: string
+          nullable: true
+
+    # ==================== Sprint 4: 竞赛域 Schemas ====================
+    TeamMemberSnapshot:
+      type: object
+      properties:
+        member_id:
+          type: integer
+        name:
+          type: string
+        student_no:
+          type: string
+        role:
+          type: string
+          nullable: true
+        overall_score:
+          type: number
+        lang_basic:
+          type: number
+        basic_algo:
+          type: number
+        simulation_logic:
+          type: number
+        boundary_handling:
+          type: number
+        knowledge_combo:
+          type: number
+        coding_debug:
+          type: number
+        weak_points:
+          type: array
+          items:
+            type: string
+    TeamAdjustLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        team_id:
+          type: integer
+        action:
+          type: string
+          enum: ["ADD", "REMOVE", "REPLACE"]
+        member_id:
+          type: integer
+        member_name:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+    TeamCreate:
+      type: object
+      required: ["name", "member_ids"]
+      properties:
+        name:
+          type: string
+        season:
+          type: string
+          nullable: true
+        leader_member_id:
+          type: integer
+          nullable: true
+        member_ids:
+          type: array
+          items:
+            type: integer
+    TeamAdjustRequest:
+      type: object
+      required: ["action", "member_id"]
+      properties:
+        action:
+          type: string
+          enum: ["ADD", "REMOVE", "REPLACE"]
+        member_id:
+          type: integer
+        reason:
+          type: string
+          nullable: true
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        season:
+          type: string
+          nullable: true
+        status:
+          type: string
+        leader_member_id:
+          type: integer
+          nullable: true
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamMemberSnapshot"
+        adjust_logs:
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamAdjustLog"
+    TeamRecommendCandidate:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+        complementarity_score:
+          type: number
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/TeamMemberSnapshot"
+        suggestion:
+          type: string
+          nullable: true
+    SchoolContestCreate:
+      type: object
+      required: ["name"]
+      properties:
+        name:
+          type: string
+        term:
+          type: string
+          nullable: true
+        round:
+          type: string
+          nullable: true
+    SchoolContest:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        term:
+          type: string
+          nullable: true
+        round:
+          type: string
+          nullable: true
+        status:
+          type: string
+        created_at:
+          type: string
+    SchoolContestEntryCreate:
+      type: object
+      required: ["member_id"]
+      properties:
+        member_id:
+          type: integer
+        prelim_rank:
+          type: integer
+          nullable: true
+        prelim_score:
+          type: number
+          nullable: true
+        status:
+          type: string
+          enum: ["REGISTERED", "WAITLISTED", "PROMOTED"]
+    SchoolContestConfirmRequest:
+      type: object
+      required: ["entry_id", "confirmed"]
+      properties:
+        entry_id:
+          type: integer
+        confirmed:
+          type: boolean
+        auto:
+          type: boolean
+          default: false
+    SchoolContestEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        contest_id:
+          type: integer
+        member_id:
+          type: integer
+        member_name:
+          type: string
+        student_no:
+          type: string
+        prelim_rank:
+          type: integer
+          nullable: true
+        prelim_score:
+          type: number
+          nullable: true
+        status:
+          type: string
+          enum: ["REGISTERED", "WAITLISTED", "PROMOTED", "CONFIRMED", "ABANDONED"]
+          description: "放弃参赛状态统一锁定为 ABANDONED，禁止使用 DECLINED (BR-009)"
+        auto:
+          type: boolean
+        confirm_time:
+          type: string
+          nullable: true
+    AnomalyCreate:
+      type: object
+      required: ["member_id", "evidence_url", "description"]
+      properties:
+        member_id:
+          type: integer
+        evidence_url:
+          type: string
+        description:
+          type: string
+    AnomalyReviewRequest:
+      type: object
+      required: ["review_conclusion", "reviewer"]
+      properties:
+        review_conclusion:
+          type: string
+          enum: ["CONFIRMED_VIOLATION", "EXONERATED", "NEED_MORE_EVIDENCE"]
+        reviewer:
+          type: string
+    Anomaly:
+      type: object
+      properties:
+        id:
+          type: integer
+        contest_id:
+          type: integer
+        member_id:
+          type: integer
+        member_name:
+          type: string
+        evidence_url:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          description: "初始状态固定为 PENDING_REVIEW (BR-010)"
+        review_conclusion:
+          type: string
+          nullable: true
+          enum: ["CONFIRMED_VIOLATION", "EXONERATED", "NEED_MORE_EVIDENCE"]
+        reviewer:
+          type: string
+          nullable: true
+        review_time:
+          type: string
+          nullable: true
+    NonXcpcResultCreate:
+      type: object
+      required: ["name", "category", "member_id"]
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        member_id:
+          type: integer
+        award:
+          type: string
+          nullable: true
+        award_level:
+          type: string
+          nullable: true
+    NonXcpcResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        member_id:
+          type: integer
+        member_name:
+          type: string
+        award:
+          type: string
+          nullable: true
+        award_level:
+          type: string
+          nullable: true
+    XcpcResultCreate:
+      type: object
+      required: ["name", "team_id"]
+      properties:
+        name:
+          type: string
+        round:
+          type: string
+          nullable: true
+        team_id:
+          type: integer
+          description: "非空必填，关联队伍档案 (BR-008)"
+        site:
+          type: string
+          nullable: true
+        rank:
+          type: integer
+          nullable: true
+        solved:
+          type: integer
+          nullable: true
+        penalty:
+          type: integer
+          nullable: true
+        award:
+          type: string
+          nullable: true
+    XcpcResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        round:
+          type: string
+          nullable: true
+        team_id:
+          type: integer
+        team_name:
+          type: string
+        rank:
+          type: integer
+          nullable: true
+        solved:
+          type: integer
+          nullable: true
+        penalty:
+          type: integer
+          nullable: true
+        site:
+          type: string
+          nullable: true
+        award:
+          type: string
+          nullable: true
