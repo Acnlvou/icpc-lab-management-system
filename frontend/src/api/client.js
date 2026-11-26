@@ -69,5 +69,38 @@ export const api = {
   // Ability Assessment (FR-AB)
   getAbilityAssessments: (params) => request(`/ability/assessments${qs(params)}`),
   createAbilityAssessment: (payload) => request('/ability/assessments', { method: 'POST', body: JSON.stringify(payload) }),
-  getMemberAbilityProfile: (memberId) => request(`/ability/members/${memberId}/profile`)
+  getMemberAbilityProfile: (memberId) => request(`/ability/members/${memberId}/profile`),
+
+  // Training & Camp (FR-TRN / FR-WIN / FR-SUM, BR-007)
+  getTrainingPlans: (params) => request(`/training/plans${qs(params)}`),
+  createTrainingPlan: (payload) => request('/training/plans', { method: 'POST', body: JSON.stringify(payload) }),
+
+  getTrainingTasks: (params) => request(`/training/tasks${qs(params)}`),
+  createTrainingTask: (payload) => request('/training/tasks', { method: 'POST', body: JSON.stringify(payload) }),
+  checkinTrainingTask: (id, payload) => request(`/training/tasks/${id}/checkin`, { method: 'POST', body: JSON.stringify(payload) }),
+
+  getTrainingCamps: (params) => request(`/training/camps${qs(params)}`),
+  createTrainingCamp: (payload) => request('/training/camps', { method: 'POST', body: JSON.stringify(payload) }),
+  summarizeCamp: (id, payload) => request(`/training/camps/${id}/summary`, { method: 'POST', body: JSON.stringify(payload) }),
+
+  // Team & Contest (FR-TEAM / FR-CMP / FR-NC / FR-XCPC, BR-008..010)
+  getTeams: (params) => request(`/contest/teams${qs(params)}`),
+  createTeam: (payload) => request('/contest/teams', { method: 'POST', body: JSON.stringify(payload) }),
+  getTeamRecommend: (params) => request(`/contest/teams/recommend${qs(params)}`),
+  getTeamDetail: (id) => request(`/contest/teams/${id}`),
+  adjustTeam: (id, payload) => request(`/contest/teams/${id}/adjust`, { method: 'POST', body: JSON.stringify(payload) }),
+
+  getSchoolContests: (params) => request(`/contest/school-contests${qs(params)}`),
+  createSchoolContest: (payload) => request('/contest/school-contests', { method: 'POST', body: JSON.stringify(payload) }),
+  getSchoolContestEntries: (id) => request(`/contest/school-contests/${id}/entries`),
+  createSchoolContestEntry: (id, payload) => request(`/contest/school-contests/${id}/entries`, { method: 'POST', body: JSON.stringify(payload) }),
+  confirmSchoolContestEntry: (id, payload) => request(`/contest/school-contests/${id}/confirm`, { method: 'POST', body: JSON.stringify(payload) }),
+  getAnomalies: (id) => request(`/contest/school-contests/${id}/anomalies`),
+  createAnomaly: (id, payload) => request(`/contest/school-contests/${id}/anomalies`, { method: 'POST', body: JSON.stringify(payload) }),
+  reviewAnomaly: (id, anomalyId, payload) => request(`/contest/school-contests/${id}/anomalies/${anomalyId}/review`, { method: 'PUT', body: JSON.stringify(payload) }),
+
+  getNonXcpc: (params) => request(`/contest/non-xcpc${qs(params)}`),
+  createNonXcpc: (payload) => request('/contest/non-xcpc', { method: 'POST', body: JSON.stringify(payload) }),
+  getXcpc: (params) => request(`/contest/xcpc${qs(params)}`),
+  createXcpc: (payload) => request('/contest/xcpc', { method: 'POST', body: JSON.stringify(payload) })
 }
