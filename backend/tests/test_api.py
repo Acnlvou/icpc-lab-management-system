@@ -23,12 +23,12 @@ def client():
 def test_health_and_dashboard_overview(client):
     res = client.get("/api/health")
     assert res.status_code == 200
-    assert res.json()["progress"] == "50%"
+    assert res.json()["progress"] == "100%"
 
     ov = client.get("/api/v1/dashboard/overview")
     assert ov.status_code == 200
     data = ov.json()
-    assert data["progress"]["overall_percent"] == 50
+    assert data["progress"]["overall_percent"] == 100
     assert data["kpi"]["total_members"] >= 8
     assert data["kpi"]["total_problems"] >= 10
     assert len(data["announcements"]) >= 1
